@@ -107,7 +107,15 @@
             margin-bottom: 1.5rem;
         }
 
-        /* --- SISTEMA DE JOGADORES --- */
+        /* --- SISTEMA DE JOGADORES (TUDO NA MESMA TELA) --- */
+        .players-setup-area {
+            background: rgba(0,0,0,0.15);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
         .input-group {
             display: flex;
             gap: 0.5rem;
@@ -119,7 +127,7 @@
             padding: 0.9rem;
             border-radius: 10px;
             border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.3);
             color: white;
             font-size: 1rem;
             outline: none;
@@ -129,7 +137,6 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            margin-bottom: 1rem;
         }
 
         .player-badge {
@@ -285,7 +292,7 @@
 
         .score-board {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             background: rgba(0,0,0,0.2);
             padding: 1rem;
             border-radius: 8px;
@@ -304,51 +311,54 @@
         <button class="tab-btn" onclick="switchTab(1)">Mímicas</button>
     </div>
 
+    <!-- JOGO 1: 1 PALAVRA, 1 MÚSICA -->
     <div class="game-container active" id="game-1">
         
-        <div id="setupScreenGame1">
-            <div class="rules-box">
-                Cadastre os jogadores ou equipes. Depois que a roleta parar, clique em quem cantou primeiro para marcar o ponto!
-            </div>
-            
+        <!-- Cadastro de Equipes/Jogadores Fixo no topo -->
+        <div class="players-setup-area">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">👥 Adicione os Jogadores ou Equipes:</p>
             <div class="input-group">
-                <input type="text" id="playerName" placeholder="Nome do jogador/equipe" onkeypress="handleEnter(event)">
-                <button class="btn btn-primary" style="width: auto; margin-top:0;" onclick="addPlayer()">Adicionar</button>
+                <input type="text" id="playerName" placeholder="Nome (Ex: Meninas)" onkeypress="handleEnter(event)">
+                <button class="btn btn-primary" style="width: auto; margin-top:0; padding: 0 1.5rem;" onclick="addPlayer()">Add</button>
             </div>
-            
             <div class="players-list" id="playersList"></div>
-            
-            <button class="btn btn-success" id="btnStartGame1" onclick="startRouletteGame()" style="display:none; margin-top: 1.5rem;">Pronto, Iniciar Jogo! 🎯</button>
+        </div>
+        
+        <!-- Roleta -->
+        <div class="roulette-wrapper">
+            <div class="roulette-pointer"></div>
+            <div class="roulette-wheel" id="wheel"></div>
+            <div class="roulette-center">
+                <div class="word-display" id="currentWord">Gire!</div>
+            </div>
         </div>
 
-        <div id="playScreenGame1" style="display:none;">
-            <div class="roulette-wrapper">
-                <div class="roulette-pointer"></div>
-                <div class="roulette-wheel" id="wheel"></div>
-                <div class="roulette-center">
-                    <div class="word-display" id="currentWord">Gire!</div>
-                </div>
+        <!-- Timer -->
+        <div class="timer-display timer-game1" id="timerGame1">30</div>
+
+        <!-- Botão principal de girar -->
+        <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
+
+        <!-- Ações após a roleta parar (Quem acertou / Passar) -->
+        <div id="roundActions" class="round-actions" style="display:none;">
+            <p id="questionText" style="text-align:center; color:var(--text-muted); margin-bottom:0.8rem; font-size: 0.9rem;">Quem cantou primeiro?</p>
+            <div class="controls-grid" id="awardButtonsGrid">
+                <!-- Botões de jogadores entram aqui via JS -->
             </div>
+            <button class="btn btn-danger" style="margin-top:0.5rem; width: 100%;" onclick="passRound()">Ninguém Acertou (Passar) ❌</button>
+        </div>
 
-            <div class="timer-display timer-game1" id="timerGame1">30</div>
-
-            <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
-
-            <div id="roundActions" class="round-actions" style="display:none;">
-                <p style="text-align:center; color:var(--text-muted); margin-bottom:0.8rem; font-size: 0.9rem;">Quem cantou primeiro?</p>
-                <div class="controls-grid" id="awardButtonsGrid">
-                    </div>
-                <button class="btn btn-danger" style="margin-top:0.5rem;" onclick="passRound()">Passar a Palavra ❌</button>
-            </div>
-
-            <div class="score-board" style="flex-direction: column;">
-                <h4 style="margin-bottom:0.5rem; text-align:center; color: var(--accent);">🏆 Placar Atual</h4>
-                <div id="leaderboardGame1"></div>
+        <!-- Placar Atualizado -->
+        <div class="score-board">
+            <h4 style="margin-bottom:0.5rem; text-align:center; color: var(--accent);">🏆 Placar</h4>
+            <div id="leaderboardGame1">
+                <p style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Adicione jogadores para iniciar o placar.</p>
             </div>
         </div>
 
     </div>
 
+    <!-- JOGO 2: MÍMICAS -->
     <div class="game-container" id="game-2">
         <div class="rules-box">
             Faça a mímica da palavra sorteada para a galera adivinhar. É proibido emitir sons ou apontar para objetos próximos.
@@ -366,7 +376,7 @@
             <button class="btn btn-danger" id="btnPass" onclick="adjustScore2(0)" disabled>Passar ❌</button>
         </div>
 
-        <div class="score-board">
+        <div class="score-board" style="flex-direction: row; justify-content: space-between; align-items: center;">
             <span>Acertos da Rodada:</span>
             <strong id="scoreVal2" style="color: #fff; font-size: 1.1rem;">0</strong>
         </div>
@@ -421,18 +431,17 @@
             if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
                 players.push({ name: name, score: 0 });
                 input.value = '';
-                renderSetup();
+                renderPlayers();
             }
         }
 
         function removePlayer(index) {
             players.splice(index, 1);
-            renderSetup();
+            renderPlayers();
         }
 
-        function renderSetup() {
+        function renderPlayers() {
             const list = document.getElementById('playersList');
-            const btnStart = document.getElementById('btnStartGame1');
             
             list.innerHTML = '';
             players.forEach((p, index) => {
@@ -443,14 +452,7 @@
                     </div>
                 `;
             });
-
-            // Só mostra o botão de iniciar se tiver pelo menos 1 jogador/equipe
-            btnStart.style.display = players.length > 0 ? 'block' : 'none';
-        }
-
-        function startRouletteGame() {
-            document.getElementById('setupScreenGame1').style.display = 'none';
-            document.getElementById('playScreenGame1').style.display = 'block';
+            
             updateLeaderboard();
         }
 
@@ -518,23 +520,29 @@
         function showRoundActions() {
             const actionsEl = document.getElementById('roundActions');
             const grid = document.getElementById('awardButtonsGrid');
+            const questionText = document.getElementById('questionText');
             
             grid.innerHTML = '';
             
-            // Cria um botão verde de "Acertou" para cada jogador cadastrado
-            players.forEach((p, index) => {
-                grid.innerHTML += `
-                    <button class="btn btn-success" style="margin-top:0;" onclick="awardPoint(${index})">
-                        ${p.name} ✅
-                    </button>
-                `;
-            });
-            
-            // Se o número de jogadores for ímpar, o último botão ocupa 2 colunas para não ficar buraco
-            if(players.length % 2 !== 0 && players.length > 1) {
-                grid.lastElementChild.classList.add('full-width');
-            } else if (players.length === 1) {
-                grid.lastElementChild.classList.add('full-width');
+            if (players.length === 0) {
+                questionText.textContent = "Adicione jogadores para marcar pontos!";
+            } else {
+                questionText.textContent = "Quem cantou primeiro?";
+                // Cria um botão verde de "Acertou" para cada jogador cadastrado
+                players.forEach((p, index) => {
+                    grid.innerHTML += `
+                        <button class="btn btn-success" style="margin-top:0;" onclick="awardPoint(${index})">
+                            ${p.name} ✅
+                        </button>
+                    `;
+                });
+                
+                // Ajuste visual se for ímpar
+                if(players.length % 2 !== 0 && players.length > 1) {
+                    grid.lastElementChild.classList.add('full-width');
+                } else if (players.length === 1) {
+                    grid.lastElementChild.classList.add('full-width');
+                }
             }
 
             actionsEl.style.display = 'block';
@@ -546,7 +554,6 @@
         }
 
         function passRound() {
-            // Ninguém ganha ponto, só encerra a rodada
             endRound();
         }
 
@@ -561,8 +568,13 @@
 
         function updateLeaderboard() {
             const board = document.getElementById('leaderboardGame1');
-            board.innerHTML = '';
             
+            if(players.length === 0) {
+                board.innerHTML = `<p style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Adicione jogadores para iniciar o placar.</p>`;
+                return;
+            }
+
+            board.innerHTML = '';
             // Ordena os jogadores do maior para o menor placar
             const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
             
