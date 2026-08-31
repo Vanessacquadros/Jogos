@@ -107,6 +107,67 @@
             margin-bottom: 1.5rem;
         }
 
+        /* --- SISTEMA DE JOGADORES --- */
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 0.9rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .players-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .player-badge {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid var(--accent);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .round-actions {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 1rem;
+        }
+        .leaderboard-item:last-child { border-bottom: none; }
+
         /* --- ROLETA VISUAL --- */
         .roulette-wrapper {
             position: relative;
@@ -170,10 +231,10 @@
             word-wrap: break-word;
         }
 
-        /* --- BOTÕES --- */
+        /* --- BOTÕES GERAIS --- */
         .btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.9rem;
             border: none;
             border-radius: 10px;
             font-weight: 600;
@@ -200,8 +261,8 @@
         }
 
         .timer-game1 {
-            display: none; /* Escondido até a roleta parar */
-            margin-bottom: 1rem;
+            display: none; 
+            margin-bottom: 0.5rem;
         }
 
         /* --- MÍMICAS --- */
@@ -218,7 +279,6 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
-            margin-top: 1rem;
         }
         
         .full-width { grid-column: span 2; }
@@ -227,7 +287,7 @@
             display: flex;
             justify-content: space-between;
             background: rgba(0,0,0,0.2);
-            padding: 0.8rem;
+            padding: 1rem;
             border-radius: 8px;
             margin-top: 1rem;
         }
@@ -244,26 +304,51 @@
         <button class="tab-btn" onclick="switchTab(1)">Mímicas</button>
     </div>
 
-    <!-- JOGO 1: 1 PALAVRA, 1 MÚSICA -->
     <div class="game-container active" id="game-1">
-        <div class="rules-box">
-            Gire a roleta. Quando ela parar, o cronômetro inicia. O grupo ou pessoa tem 30 segundos para cantar uma música que contenha a palavra sorteada.
-        </div>
         
-        <div class="roulette-wrapper">
-            <div class="roulette-pointer"></div>
-            <div class="roulette-wheel" id="wheel"></div>
-            <div class="roulette-center">
-                <div class="word-display" id="currentWord">Gire!</div>
+        <div id="setupScreenGame1">
+            <div class="rules-box">
+                Cadastre os jogadores ou equipes. Depois que a roleta parar, clique em quem cantou primeiro para marcar o ponto!
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="playerName" placeholder="Nome do jogador/equipe" onkeypress="handleEnter(event)">
+                <button class="btn btn-primary" style="width: auto; margin-top:0;" onclick="addPlayer()">Adicionar</button>
+            </div>
+            
+            <div class="players-list" id="playersList"></div>
+            
+            <button class="btn btn-success" id="btnStartGame1" onclick="startRouletteGame()" style="display:none; margin-top: 1.5rem;">Pronto, Iniciar Jogo! 🎯</button>
+        </div>
+
+        <div id="playScreenGame1" style="display:none;">
+            <div class="roulette-wrapper">
+                <div class="roulette-pointer"></div>
+                <div class="roulette-wheel" id="wheel"></div>
+                <div class="roulette-center">
+                    <div class="word-display" id="currentWord">Gire!</div>
+                </div>
+            </div>
+
+            <div class="timer-display timer-game1" id="timerGame1">30</div>
+
+            <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
+
+            <div id="roundActions" class="round-actions" style="display:none;">
+                <p style="text-align:center; color:var(--text-muted); margin-bottom:0.8rem; font-size: 0.9rem;">Quem cantou primeiro?</p>
+                <div class="controls-grid" id="awardButtonsGrid">
+                    </div>
+                <button class="btn btn-danger" style="margin-top:0.5rem;" onclick="passRound()">Passar a Palavra ❌</button>
+            </div>
+
+            <div class="score-board" style="flex-direction: column;">
+                <h4 style="margin-bottom:0.5rem; text-align:center; color: var(--accent);">🏆 Placar Atual</h4>
+                <div id="leaderboardGame1"></div>
             </div>
         </div>
 
-        <div class="timer-display timer-game1" id="timerGame1">30</div>
-
-        <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
     </div>
 
-    <!-- JOGO 2: MÍMICAS -->
     <div class="game-container" id="game-2">
         <div class="rules-box">
             Faça a mímica da palavra sorteada para a galera adivinhar. É proibido emitir sons ou apontar para objetos próximos.
@@ -272,18 +357,18 @@
         <div class="timer-display" id="timerGame2">60</div>
         <div class="secret-word" id="secretWord">Clique em Iniciar</div>
 
-        <div class="controls-grid">
-            <button class="btn btn-primary full-width" id="startMimicBtn" onclick="startNewMimic()">Sortear / Iniciar 🎭</button>
+        <div class="controls-grid" style="margin-top: 1rem;">
+            <button class="btn btn-primary full-width" style="margin-top:0;" id="startMimicBtn" onclick="startNewMimic()">Sortear / Iniciar 🎭</button>
             
             <button class="btn btn-warning full-width" id="pauseBtn" onclick="togglePause()" style="display: none; margin-top:0;">Pausar Tempo ⏸️</button>
             
-            <button class="btn btn-success" id="btnHit" onclick="adjustScore(1)" disabled>Acertou ✅</button>
-            <button class="btn btn-danger" id="btnPass" onclick="adjustScore(0)" disabled>Passar ❌</button>
+            <button class="btn btn-success" id="btnHit" onclick="adjustScore2(1)" disabled>Acertou ✅</button>
+            <button class="btn btn-danger" id="btnPass" onclick="adjustScore2(0)" disabled>Passar ❌</button>
         </div>
 
         <div class="score-board">
             <span>Acertos da Rodada:</span>
-            <strong id="scoreVal" style="color: #fff; font-size: 1.1rem;">0</strong>
+            <strong id="scoreVal2" style="color: #fff; font-size: 1.1rem;">0</strong>
         </div>
     </div>
 
@@ -298,7 +383,9 @@
             });
         }
 
-        // --- LÓGICA DA ROLETA GOSPEL (JOGO 1) ---
+        // ==========================================
+        // LÓGICA DO JOGO 1: ROLETA E JOGADORES
+        // ==========================================
         const songWords = [
             "Milagre", "Deserto", "Vitória", "Cruz", "Sangue", "Graça", "Glória", 
             "Fogo", "Leão", "Cordeiro", "Altar", "Promessa", "Santo", "Amor", 
@@ -317,42 +404,94 @@
             "Pão", "Vinho", "Azeite", "Cálice"
         ];
         
+        let players = [];
         let isSpinning = false;
         let currentRotation = 0;
         let timerGame1Interval = null;
 
+        // --- Configuração dos Jogadores ---
+        function handleEnter(e) {
+            if (e.key === 'Enter') addPlayer();
+        }
+
+        function addPlayer() {
+            const input = document.getElementById('playerName');
+            const name = input.value.trim();
+            
+            if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+                players.push({ name: name, score: 0 });
+                input.value = '';
+                renderSetup();
+            }
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            renderSetup();
+        }
+
+        function renderSetup() {
+            const list = document.getElementById('playersList');
+            const btnStart = document.getElementById('btnStartGame1');
+            
+            list.innerHTML = '';
+            players.forEach((p, index) => {
+                list.innerHTML += `
+                    <div class="player-badge">
+                        ${p.name}
+                        <button class="remove-btn" onclick="removePlayer(${index})">✕</button>
+                    </div>
+                `;
+            });
+
+            // Só mostra o botão de iniciar se tiver pelo menos 1 jogador/equipe
+            btnStart.style.display = players.length > 0 ? 'block' : 'none';
+        }
+
+        function startRouletteGame() {
+            document.getElementById('setupScreenGame1').style.display = 'none';
+            document.getElementById('playScreenGame1').style.display = 'block';
+            updateLeaderboard();
+        }
+
+        // --- Roleta e Gameplay ---
         function spinRoulette() {
             if (isSpinning) return;
             isSpinning = true;
             
             const wheel = document.getElementById('wheel');
             const wordEl = document.getElementById('currentWord');
-            const btn = document.getElementById('spinBtn');
+            const btnSpin = document.getElementById('spinBtn');
             const timerEl = document.getElementById('timerGame1');
+            const actionsEl = document.getElementById('roundActions');
             
-            // Reseta visual e limpa timer anterior
+            // Oculta coisas antigas
             clearInterval(timerGame1Interval);
             timerEl.style.display = 'none';
-            btn.disabled = true;
+            actionsEl.style.display = 'none';
+            btnSpin.style.display = 'block';
+            btnSpin.disabled = true;
+            
             wordEl.textContent = "...";
             wordEl.style.fontSize = "2rem";
 
-            // Gira entre 5 e 8 voltas completas + ângulo aleatório
+            // Gira
             const extraSpins = 1800 + Math.floor(Math.random() * 720);
             currentRotation += extraSpins;
-            
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-            // Aguarda a transição CSS do giro (3s)
+            // Após parar (3s)
             setTimeout(() => {
                 const randomWord = songWords[Math.floor(Math.random() * songWords.length)];
                 wordEl.textContent = randomWord;
                 wordEl.style.fontSize = "1.2rem";
                 isSpinning = false;
-                btn.disabled = false;
                 
-                // Inicia o cronômetro do jogo 1
-                startTimerGame1();
+                // Prepara a tela de decisão
+                btnSpin.style.display = 'none'; // Esconde botão de girar
+                btnSpin.disabled = false;
+                showRoundActions(); // Mostra opções de quem acertou
+                startTimerGame1();  // Inicia o relógio
             }, 3000);
         }
 
@@ -376,7 +515,71 @@
             }, 1000);
         }
 
-        // --- LÓGICA DAS MÍMICAS GERAIS (JOGO 2) ---
+        function showRoundActions() {
+            const actionsEl = document.getElementById('roundActions');
+            const grid = document.getElementById('awardButtonsGrid');
+            
+            grid.innerHTML = '';
+            
+            // Cria um botão verde de "Acertou" para cada jogador cadastrado
+            players.forEach((p, index) => {
+                grid.innerHTML += `
+                    <button class="btn btn-success" style="margin-top:0;" onclick="awardPoint(${index})">
+                        ${p.name} ✅
+                    </button>
+                `;
+            });
+            
+            // Se o número de jogadores for ímpar, o último botão ocupa 2 colunas para não ficar buraco
+            if(players.length % 2 !== 0 && players.length > 1) {
+                grid.lastElementChild.classList.add('full-width');
+            } else if (players.length === 1) {
+                grid.lastElementChild.classList.add('full-width');
+            }
+
+            actionsEl.style.display = 'block';
+        }
+
+        function awardPoint(playerIndex) {
+            players[playerIndex].score += 1;
+            endRound();
+        }
+
+        function passRound() {
+            // Ninguém ganha ponto, só encerra a rodada
+            endRound();
+        }
+
+        function endRound() {
+            clearInterval(timerGame1Interval);
+            document.getElementById('timerGame1').style.display = 'none';
+            document.getElementById('roundActions').style.display = 'none';
+            document.getElementById('spinBtn').style.display = 'block'; // Volta o botão de girar
+            document.getElementById('currentWord').textContent = "Próxima!";
+            updateLeaderboard();
+        }
+
+        function updateLeaderboard() {
+            const board = document.getElementById('leaderboardGame1');
+            board.innerHTML = '';
+            
+            // Ordena os jogadores do maior para o menor placar
+            const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+            
+            sortedPlayers.forEach(p => {
+                board.innerHTML += `
+                    <div class="leaderboard-item">
+                        <strong>${p.name}</strong>
+                        <span>${p.score} pts</span>
+                    </div>
+                `;
+            });
+        }
+
+
+        // ==========================================
+        // LÓGICA DO JOGO 2: MÍMICAS
+        // ==========================================
         const mimicList = [
             "Astronauta", "Pinguim", "Secador de Cabelo", "Montanha Russa", 
             "Zumbi", "Surfista", "Gato", "Tocar Bateria", "Cozinhar", 
@@ -386,7 +589,7 @@
 
         let timerGame2Interval = null;
         let timeLeftGame2 = 60;
-        let score = 0;
+        let score2 = 0;
         let isPaused = false;
 
         function startNewMimic() {
@@ -394,13 +597,11 @@
             timeLeftGame2 = 60;
             isPaused = false;
             
-            // Reseta Pontuação ao iniciar nova rodada
-            score = 0;
-            document.getElementById('scoreVal').textContent = score;
+            score2 = 0;
+            document.getElementById('scoreVal2').textContent = score2;
 
             updateTimer2Display();
             
-            // Ativa os botões
             document.getElementById('btnHit').disabled = false;
             document.getElementById('btnPass').disabled = false;
             
@@ -442,12 +643,11 @@
             pauseBtn.className = isPaused ? 'btn btn-primary full-width' : 'btn btn-warning full-width';
         }
 
-        function adjustScore(amount) {
+        function adjustScore2(amount) {
             if (amount > 0) {
-                score += amount;
-                document.getElementById('scoreVal').textContent = score;
+                score2 += amount;
+                document.getElementById('scoreVal2').textContent = score2;
             }
-            // Sorteia nova palavra, mas o tempo continua rolando
             setRandomMimicWord();
         }
 
