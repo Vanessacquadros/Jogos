@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arena Game</title>
+    <title>Arena</title>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -42,10 +42,11 @@
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 2rem;
             background: linear-gradient(to right, #c084fc, #f43f5e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-top: 0.5rem;
         }
 
         .nav-tabs {
@@ -235,8 +236,7 @@
 <body>
 
     <header>
-        <h1>🎮 Arena Game</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Diversão garantida com a galera</p>
+        <h1>🎮 Arena</h1>
     </header>
 
     <div class="nav-tabs">
@@ -244,6 +244,7 @@
         <button class="tab-btn" onclick="switchTab(1)">Mímicas</button>
     </div>
 
+    <!-- JOGO 1: 1 PALAVRA, 1 MÚSICA -->
     <div class="game-container active" id="game-1">
         <div class="rules-box">
             Gire a roleta. Quando ela parar, o cronômetro inicia. O grupo ou pessoa tem 30 segundos para cantar uma música que contenha a palavra sorteada.
@@ -262,6 +263,7 @@
         <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
     </div>
 
+    <!-- JOGO 2: MÍMICAS -->
     <div class="game-container" id="game-2">
         <div class="rules-box">
             Faça a mímica da palavra sorteada para a galera adivinhar. É proibido emitir sons ou apontar para objetos próximos.
@@ -296,11 +298,23 @@
             });
         }
 
-        // --- LÓGICA DA ROLETA (JOGO 1) ---
+        // --- LÓGICA DA ROLETA GOSPEL (JOGO 1) ---
         const songWords = [
-            "Coração", "Amor", "Sol", "Chuva", "Noite", 
-            "Saudade", "Mundo", "Tempo", "Festa", "Beijo", 
-            "Olhar", "Menina", "Vida", "Vento", "Mar", "Estrela"
+            "Milagre", "Deserto", "Vitória", "Cruz", "Sangue", "Graça", "Glória", 
+            "Fogo", "Leão", "Cordeiro", "Altar", "Promessa", "Santo", "Amor", 
+            "Luz", "Caminho", "Verdade", "Vida", "Paz", "Perdão", "Céu", "Rei", 
+            "Senhor", "Fé", "Esperança", "Salvação", "Justiça", "Misericórdia", 
+            "Presença", "Unção", "Poder", "Força", "Alegria", "Tristeza", "Choro", 
+            "Madrugada", "Oração", "Jejum", "Palavra", "Espírito", "Água", "Vento", 
+            "Mar", "Muralha", "Jericó", "Jordão", "Trono", "Coroa", "Vale", "Monte", 
+            "Rocha", "Escudo", "Espada", "Exército", "Batalha", "Guerra", "Louvor", 
+            "Adoração", "Cantico", "Novo", "Eterno", "Soberano", "Redentor", "Filho", 
+            "Pai", "Igreja", "Noiva", "Vaso", "Oleiro", "Barro", "Quebrantado", 
+            "Coração", "Alma", "Mente", "Corpo", "Templo", "Morada", "Esconderijo", 
+            "Refúgio", "Socorro", "Angústia", "Tempestade", "Barco", "Ondas", 
+            "Calmaria", "Mão", "Abraço", "Voz", "Chamado", "Escolha", "Propósito", 
+            "Missão", "Semente", "Fruto", "Colheita", "Trigo", "Celeiro", "Maná", 
+            "Pão", "Vinho", "Azeite", "Cálice"
         ];
         
         let isSpinning = false;
@@ -362,7 +376,7 @@
             }, 1000);
         }
 
-        // --- LÓGICA DAS MÍMICAS (JOGO 2) ---
+        // --- LÓGICA DAS MÍMICAS GERAIS (JOGO 2) ---
         const mimicList = [
             "Astronauta", "Pinguim", "Secador de Cabelo", "Montanha Russa", 
             "Zumbi", "Surfista", "Gato", "Tocar Bateria", "Cozinhar", 
