@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Espaço Louvor & Ação</title>
+    <title>Arena Game</title>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -106,7 +106,7 @@
             margin-bottom: 1.5rem;
         }
 
-        /* --- ROLETA VISUAL CORRIGIDA --- */
+        /* --- ROLETA VISUAL --- */
         .roulette-wrapper {
             position: relative;
             width: 240px;
@@ -134,7 +134,6 @@
             top: 0; left: 0;
             width: 100%; height: 100%;
             border-radius: 50%;
-            /* Fatias coloridas da roleta */
             background: conic-gradient(
                 #8b5cf6 0deg 60deg,
                 #6d28d9 60deg 120deg,
@@ -147,7 +146,6 @@
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
 
-        /* O centro que não gira e mantém o texto reto */
         .roulette-center {
             position: relative;
             z-index: 5;
@@ -168,6 +166,7 @@
             text-align: center;
             padding: 0.5rem;
             color: #fff;
+            word-wrap: break-word;
         }
 
         /* --- BOTÕES --- */
@@ -180,6 +179,7 @@
             font-size: 1rem;
             cursor: pointer;
             transition: transform 0.1s;
+            margin-top: 0.5rem;
         }
         
         .btn:active { transform: scale(0.96); }
@@ -188,7 +188,7 @@
         .btn-danger { background: var(--danger); color: white; }
         .btn-warning { background: var(--warning); color: #000; }
 
-        /* --- MÍMICAS --- */
+        /* --- TEMPORIZADOR --- */
         .timer-display {
             font-size: 3rem;
             font-weight: 800;
@@ -198,6 +198,12 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .timer-game1 {
+            display: none; /* Escondido até a roleta parar */
+            margin-bottom: 1rem;
+        }
+
+        /* --- MÍMICAS --- */
         .secret-word {
             font-size: 1.5rem;
             font-weight: 700;
@@ -229,8 +235,8 @@
 <body>
 
     <header>
-        <h1>🎮 Festança Gospel</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Diversão garantida para a célula</p>
+        <h1>🎮 Arena Game</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Diversão garantida com a galera</p>
     </header>
 
     <div class="nav-tabs">
@@ -238,45 +244,43 @@
         <button class="tab-btn" onclick="switchTab(1)">Mímicas</button>
     </div>
 
-    <!-- JOGO 1: ROLETA -->
     <div class="game-container active" id="game-1">
         <div class="rules-box">
-            Gire a roleta. O grupo tem 30 segundos para lembrar e cantar um louvor que contenha a palavra sorteada.
+            Gire a roleta. Quando ela parar, o cronômetro inicia. O grupo ou pessoa tem 30 segundos para cantar uma música que contenha a palavra sorteada.
         </div>
         
         <div class="roulette-wrapper">
             <div class="roulette-pointer"></div>
-            <!-- O fundo que gira -->
             <div class="roulette-wheel" id="wheel"></div>
-            <!-- O centro que fica parado -->
             <div class="roulette-center">
                 <div class="word-display" id="currentWord">Gire!</div>
             </div>
         </div>
 
+        <div class="timer-display timer-game1" id="timerGame1">30</div>
+
         <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
     </div>
 
-    <!-- JOGO 2: MÍMICAS -->
     <div class="game-container" id="game-2">
         <div class="rules-box">
-            Faça a mímica do personagem ou história bíblica. É proibido emitir sons ou apontar para objetos.
+            Faça a mímica da palavra sorteada para a galera adivinhar. É proibido emitir sons ou apontar para objetos próximos.
         </div>
 
-        <div class="timer-display" id="timer">60</div>
+        <div class="timer-display" id="timerGame2">60</div>
         <div class="secret-word" id="secretWord">Clique em Iniciar</div>
 
         <div class="controls-grid">
             <button class="btn btn-primary full-width" id="startMimicBtn" onclick="startNewMimic()">Sortear / Iniciar 🎭</button>
             
-            <button class="btn btn-warning full-width" id="pauseBtn" onclick="togglePause()" style="display: none;">Pausar Tempo ⏸️</button>
+            <button class="btn btn-warning full-width" id="pauseBtn" onclick="togglePause()" style="display: none; margin-top:0;">Pausar Tempo ⏸️</button>
             
             <button class="btn btn-success" id="btnHit" onclick="adjustScore(1)" disabled>Acertou ✅</button>
             <button class="btn btn-danger" id="btnPass" onclick="adjustScore(0)" disabled>Passar ❌</button>
         </div>
 
         <div class="score-board">
-            <span>Acertos:</span>
+            <span>Acertos da Rodada:</span>
             <strong id="scoreVal" style="color: #fff; font-size: 1.1rem;">0</strong>
         </div>
     </div>
@@ -293,14 +297,15 @@
         }
 
         // --- LÓGICA DA ROLETA (JOGO 1) ---
-        const gospelWords = [
-            "Graça", "Amor", "Cruz", "Fé", "Sangue", 
-            "Fogo", "Cordeiro", "Leão", "Paz", "Glória", 
-            "Santo", "Milagre", "Caminho", "Deserto", "Luz", "Céu"
+        const songWords = [
+            "Coração", "Amor", "Sol", "Chuva", "Noite", 
+            "Saudade", "Mundo", "Tempo", "Festa", "Beijo", 
+            "Olhar", "Menina", "Vida", "Vento", "Mar", "Estrela"
         ];
         
         let isSpinning = false;
         let currentRotation = 0;
+        let timerGame1Interval = null;
 
         function spinRoulette() {
             if (isSpinning) return;
@@ -309,10 +314,14 @@
             const wheel = document.getElementById('wheel');
             const wordEl = document.getElementById('currentWord');
             const btn = document.getElementById('spinBtn');
+            const timerEl = document.getElementById('timerGame1');
             
+            // Reseta visual e limpa timer anterior
+            clearInterval(timerGame1Interval);
+            timerEl.style.display = 'none';
             btn.disabled = true;
             wordEl.textContent = "...";
-            wordEl.style.fontSize = "2rem"; // Efeito de suspense
+            wordEl.style.fontSize = "2rem";
 
             // Gira entre 5 e 8 voltas completas + ângulo aleatório
             const extraSpins = 1800 + Math.floor(Math.random() * 720);
@@ -322,32 +331,60 @@
 
             // Aguarda a transição CSS do giro (3s)
             setTimeout(() => {
-                const randomWord = gospelWords[Math.floor(Math.random() * gospelWords.length)];
+                const randomWord = songWords[Math.floor(Math.random() * songWords.length)];
                 wordEl.textContent = randomWord;
                 wordEl.style.fontSize = "1.2rem";
                 isSpinning = false;
                 btn.disabled = false;
+                
+                // Inicia o cronômetro do jogo 1
+                startTimerGame1();
             }, 3000);
+        }
+
+        function startTimerGame1() {
+            const timerEl = document.getElementById('timerGame1');
+            let timeLeft = 30;
+            
+            timerEl.style.display = 'block';
+            timerEl.textContent = timeLeft;
+            timerEl.style.fontSize = '3rem';
+            
+            timerGame1Interval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerGame1Interval);
+                    timerEl.textContent = "TEMPO ESGOTADO! ⏳";
+                    timerEl.style.fontSize = '2rem';
+                }
+            }, 1000);
         }
 
         // --- LÓGICA DAS MÍMICAS (JOGO 2) ---
         const mimicList = [
-            "Arca de Noé", "Davi e Golias", "Moisés abrindo o Mar",
-            "A Queda de Jericó", "Daniel nos Leões", "A Pesca Maravilhosa",
-            "O Filho Pródigo", "Zaqueu na Árvore", "A Torre de Babel",
-            "Multiplicação dos Pães", "Sansão e as Colunas", "O Bom Samaritano"
+            "Astronauta", "Pinguim", "Secador de Cabelo", "Montanha Russa", 
+            "Zumbi", "Surfista", "Gato", "Tocar Bateria", "Cozinhar", 
+            "Tirar Foto", "Dinossauro", "Robô", "Cachorro", "Pescador", 
+            "Andar de Bicicleta", "Liquidificador", "Escovar os Dentes"
         ];
 
-        let timerInterval = null;
-        let timeLeft = 60;
+        let timerGame2Interval = null;
+        let timeLeftGame2 = 60;
         let score = 0;
         let isPaused = false;
 
         function startNewMimic() {
-            clearInterval(timerInterval);
-            timeLeft = 60;
+            clearInterval(timerGame2Interval);
+            timeLeftGame2 = 60;
             isPaused = false;
-            updateTimerDisplay();
+            
+            // Reseta Pontuação ao iniciar nova rodada
+            score = 0;
+            document.getElementById('scoreVal').textContent = score;
+
+            updateTimer2Display();
             
             // Ativa os botões
             document.getElementById('btnHit').disabled = false;
@@ -356,9 +393,10 @@
             const pauseBtn = document.getElementById('pauseBtn');
             pauseBtn.style.display = 'block';
             pauseBtn.textContent = 'Pausar Tempo ⏸️';
+            pauseBtn.className = 'btn btn-warning full-width';
 
             setRandomMimicWord();
-            runTimer();
+            runTimer2();
         }
 
         function setRandomMimicWord() {
@@ -366,14 +404,14 @@
             document.getElementById('secretWord').textContent = randomMimic;
         }
 
-        function runTimer() {
-            timerInterval = setInterval(() => {
+        function runTimer2() {
+            timerGame2Interval = setInterval(() => {
                 if(!isPaused) {
-                    timeLeft--;
-                    updateTimerDisplay();
+                    timeLeftGame2--;
+                    updateTimer2Display();
                     
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
+                    if (timeLeftGame2 <= 0) {
+                        clearInterval(timerGame2Interval);
                         document.getElementById('secretWord').textContent = "TEMPO ESGOTADO! ⏳";
                         document.getElementById('btnHit').disabled = true;
                         document.getElementById('btnPass').disabled = true;
@@ -399,8 +437,8 @@
             setRandomMimicWord();
         }
 
-        function updateTimerDisplay() {
-            document.getElementById('timer').textContent = timeLeft;
+        function updateTimer2Display() {
+            document.getElementById('timerGame2').textContent = timeLeftGame2;
         }
     </script>
 </body>
