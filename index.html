@@ -36,7 +36,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             width: 100%;
             max-width: 500px;
         }
@@ -49,9 +49,10 @@
             margin-top: 0.5rem;
         }
 
+        /* --- ABAS ADAPTADAS PARA OS NOVOS NOMES --- */
         .nav-tabs {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.3rem;
             width: 100%;
             max-width: 500px;
             margin-bottom: 1rem;
@@ -62,14 +63,18 @@
 
         .tab-btn {
             flex: 1;
-            padding: 0.75rem;
+            padding: 0.6rem 0.2rem;
             border: none;
             background: transparent;
             color: var(--text-muted);
             font-weight: 600;
+            /* Fonte levemente reduzida para caber nomes maiores no mobile */
+            font-size: 0.75rem; 
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            text-align: center;
+            line-height: 1.2;
         }
 
         .tab-btn.active {
@@ -107,7 +112,7 @@
             margin-bottom: 1.5rem;
         }
 
-        /* --- SISTEMA DE JOGADORES (TUDO NA MESMA TELA) --- */
+        /* --- SISTEMA DE JOGADORES --- */
         .players-setup-area {
             background: rgba(0,0,0,0.15);
             padding: 1rem;
@@ -257,7 +262,7 @@
         .btn-danger { background: var(--danger); color: white; }
         .btn-warning { background: var(--warning); color: #000; }
 
-        /* --- TEMPORIZADOR --- */
+        /* --- TEMPORIZADORES --- */
         .timer-display {
             font-size: 3rem;
             font-weight: 800;
@@ -272,7 +277,7 @@
             margin-bottom: 0.5rem;
         }
 
-        /* --- MÍMICAS --- */
+        /* --- PALAVRAS SECRETAS --- */
         .secret-word {
             font-size: 1.5rem;
             font-weight: 700;
@@ -280,6 +285,9 @@
             text-align: center;
             margin: 1.5rem 0;
             min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .controls-grid {
@@ -307,14 +315,13 @@
     </header>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab(0)">1 Palavra, 1 Música</button>
+        <button class="tab-btn active" onclick="switchTab(0)">1 palavra, 1 música</button>
         <button class="tab-btn" onclick="switchTab(1)">Mímicas</button>
+        <button class="tab-btn" onclick="switchTab(2)">Quem sou eu?</button>
     </div>
 
-    <!-- JOGO 1: 1 PALAVRA, 1 MÚSICA -->
     <div class="game-container active" id="game-1">
         
-        <!-- Cadastro de Equipes/Jogadores Fixo no topo -->
         <div class="players-setup-area">
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">👥 Adicione os Jogadores ou Equipes:</p>
             <div class="input-group">
@@ -324,7 +331,6 @@
             <div class="players-list" id="playersList"></div>
         </div>
         
-        <!-- Roleta -->
         <div class="roulette-wrapper">
             <div class="roulette-pointer"></div>
             <div class="roulette-wheel" id="wheel"></div>
@@ -333,22 +339,16 @@
             </div>
         </div>
 
-        <!-- Timer -->
         <div class="timer-display timer-game1" id="timerGame1">30</div>
 
-        <!-- Botão principal de girar -->
         <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
 
-        <!-- Ações após a roleta parar (Quem acertou / Passar) -->
         <div id="roundActions" class="round-actions" style="display:none;">
             <p id="questionText" style="text-align:center; color:var(--text-muted); margin-bottom:0.8rem; font-size: 0.9rem;">Quem cantou primeiro?</p>
-            <div class="controls-grid" id="awardButtonsGrid">
-                <!-- Botões de jogadores entram aqui via JS -->
-            </div>
+            <div class="controls-grid" id="awardButtonsGrid"></div>
             <button class="btn btn-danger" style="margin-top:0.5rem; width: 100%;" onclick="passRound()">Ninguém Acertou (Passar) ❌</button>
         </div>
 
-        <!-- Placar Atualizado -->
         <div class="score-board">
             <h4 style="margin-bottom:0.5rem; text-align:center; color: var(--accent);">🏆 Placar</h4>
             <div id="leaderboardGame1">
@@ -358,7 +358,6 @@
 
     </div>
 
-    <!-- JOGO 2: MÍMICAS -->
     <div class="game-container" id="game-2">
         <div class="rules-box">
             Faça a mímica da palavra sorteada para a galera adivinhar. É proibido emitir sons ou apontar para objetos próximos.
@@ -369,7 +368,6 @@
 
         <div class="controls-grid" style="margin-top: 1rem;">
             <button class="btn btn-primary full-width" style="margin-top:0;" id="startMimicBtn" onclick="startNewMimic()">Sortear / Iniciar 🎭</button>
-            
             <button class="btn btn-warning full-width" id="pauseBtn" onclick="togglePause()" style="display: none; margin-top:0;">Pausar Tempo ⏸️</button>
             
             <button class="btn btn-success" id="btnHit" onclick="adjustScore2(1)" disabled>Acertou ✅</button>
@@ -379,6 +377,27 @@
         <div class="score-board" style="flex-direction: row; justify-content: space-between; align-items: center;">
             <span>Acertos da Rodada:</span>
             <strong id="scoreVal2" style="color: #fff; font-size: 1.1rem;">0</strong>
+        </div>
+    </div>
+
+    <div class="game-container" id="game-3">
+        <div class="rules-box">
+            Coloque o celular na testa! A galera vai dar dicas para você adivinhar a palavra, mas sem dizer o nome exato. Ganha pontos por cada acerto em 1 minuto.
+        </div>
+
+        <div class="timer-display" id="timerGame3">60</div>
+        <div class="secret-word" id="secretWord3" style="font-size: 2.2rem; min-height: 4rem;">Preparado?</div>
+
+        <div class="controls-grid" style="margin-top: 1rem;">
+            <button class="btn btn-primary full-width" style="margin-top:0;" id="startWhoAmIBtn" onclick="startWhoAmI()">Iniciar Rodada ⏱️</button>
+            
+            <button class="btn btn-success" id="btnHit3" onclick="adjustScore3(1)" disabled>Acertou ✅</button>
+            <button class="btn btn-danger" id="btnPass3" onclick="adjustScore3(0)" disabled>Passar ❌</button>
+        </div>
+
+        <div class="score-board" style="flex-direction: row; justify-content: space-between; align-items: center;">
+            <span>Acertos da Rodada:</span>
+            <strong id="scoreVal3" style="color: #fff; font-size: 1.1rem;">0</strong>
         </div>
     </div>
 
@@ -394,7 +413,7 @@
         }
 
         // ==========================================
-        // LÓGICA DO JOGO 1: ROLETA E JOGADORES
+        // LÓGICA DO JOGO 1: ROLETA GOSPEL
         // ==========================================
         const songWords = [
             "Milagre", "Deserto", "Vitória", "Cruz", "Sangue", "Graça", "Glória", 
@@ -419,15 +438,11 @@
         let currentRotation = 0;
         let timerGame1Interval = null;
 
-        // --- Configuração dos Jogadores ---
-        function handleEnter(e) {
-            if (e.key === 'Enter') addPlayer();
-        }
+        function handleEnter(e) { if (e.key === 'Enter') addPlayer(); }
 
         function addPlayer() {
             const input = document.getElementById('playerName');
             const name = input.value.trim();
-            
             if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
                 players.push({ name: name, score: 0 });
                 input.value = '';
@@ -442,7 +457,6 @@
 
         function renderPlayers() {
             const list = document.getElementById('playersList');
-            
             list.innerHTML = '';
             players.forEach((p, index) => {
                 list.innerHTML += `
@@ -452,11 +466,9 @@
                     </div>
                 `;
             });
-            
             updateLeaderboard();
         }
 
-        // --- Roleta e Gameplay ---
         function spinRoulette() {
             if (isSpinning) return;
             isSpinning = true;
@@ -467,7 +479,6 @@
             const timerEl = document.getElementById('timerGame1');
             const actionsEl = document.getElementById('roundActions');
             
-            // Oculta coisas antigas
             clearInterval(timerGame1Interval);
             timerEl.style.display = 'none';
             actionsEl.style.display = 'none';
@@ -477,30 +488,26 @@
             wordEl.textContent = "...";
             wordEl.style.fontSize = "2rem";
 
-            // Gira
             const extraSpins = 1800 + Math.floor(Math.random() * 720);
             currentRotation += extraSpins;
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-            // Após parar (3s)
             setTimeout(() => {
                 const randomWord = songWords[Math.floor(Math.random() * songWords.length)];
                 wordEl.textContent = randomWord;
                 wordEl.style.fontSize = "1.2rem";
                 isSpinning = false;
                 
-                // Prepara a tela de decisão
-                btnSpin.style.display = 'none'; // Esconde botão de girar
+                btnSpin.style.display = 'none';
                 btnSpin.disabled = false;
-                showRoundActions(); // Mostra opções de quem acertou
-                startTimerGame1();  // Inicia o relógio
+                showRoundActions(); 
+                startTimerGame1(); 
             }, 3000);
         }
 
         function startTimerGame1() {
             const timerEl = document.getElementById('timerGame1');
             let timeLeft = 30;
-            
             timerEl.style.display = 'block';
             timerEl.textContent = timeLeft;
             timerEl.style.fontSize = '3rem';
@@ -508,7 +515,6 @@
             timerGame1Interval = setInterval(() => {
                 timeLeft--;
                 timerEl.textContent = timeLeft;
-                
                 if (timeLeft <= 0) {
                     clearInterval(timerGame1Interval);
                     timerEl.textContent = "TEMPO ESGOTADO! ⏳";
@@ -528,7 +534,6 @@
                 questionText.textContent = "Adicione jogadores para marcar pontos!";
             } else {
                 questionText.textContent = "Quem cantou primeiro?";
-                // Cria um botão verde de "Acertou" para cada jogador cadastrado
                 players.forEach((p, index) => {
                     grid.innerHTML += `
                         <button class="btn btn-success" style="margin-top:0;" onclick="awardPoint(${index})">
@@ -537,14 +542,12 @@
                     `;
                 });
                 
-                // Ajuste visual se for ímpar
                 if(players.length % 2 !== 0 && players.length > 1) {
                     grid.lastElementChild.classList.add('full-width');
                 } else if (players.length === 1) {
                     grid.lastElementChild.classList.add('full-width');
                 }
             }
-
             actionsEl.style.display = 'block';
         }
 
@@ -553,31 +556,25 @@
             endRound();
         }
 
-        function passRound() {
-            endRound();
-        }
+        function passRound() { endRound(); }
 
         function endRound() {
             clearInterval(timerGame1Interval);
             document.getElementById('timerGame1').style.display = 'none';
             document.getElementById('roundActions').style.display = 'none';
-            document.getElementById('spinBtn').style.display = 'block'; // Volta o botão de girar
+            document.getElementById('spinBtn').style.display = 'block';
             document.getElementById('currentWord').textContent = "Próxima!";
             updateLeaderboard();
         }
 
         function updateLeaderboard() {
             const board = document.getElementById('leaderboardGame1');
-            
             if(players.length === 0) {
                 board.innerHTML = `<p style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Adicione jogadores para iniciar o placar.</p>`;
                 return;
             }
-
             board.innerHTML = '';
-            // Ordena os jogadores do maior para o menor placar
             const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
-            
             sortedPlayers.forEach(p => {
                 board.innerHTML += `
                     <div class="leaderboard-item">
@@ -602,16 +599,15 @@
         let timerGame2Interval = null;
         let timeLeftGame2 = 60;
         let score2 = 0;
-        let isPaused = false;
+        let isPaused2 = false;
 
         function startNewMimic() {
             clearInterval(timerGame2Interval);
             timeLeftGame2 = 60;
-            isPaused = false;
+            isPaused2 = false;
             
             score2 = 0;
             document.getElementById('scoreVal2').textContent = score2;
-
             updateTimer2Display();
             
             document.getElementById('btnHit').disabled = false;
@@ -633,10 +629,9 @@
 
         function runTimer2() {
             timerGame2Interval = setInterval(() => {
-                if(!isPaused) {
+                if(!isPaused2) {
                     timeLeftGame2--;
                     updateTimer2Display();
-                    
                     if (timeLeftGame2 <= 0) {
                         clearInterval(timerGame2Interval);
                         document.getElementById('secretWord').textContent = "TEMPO ESGOTADO! ⏳";
@@ -649,10 +644,10 @@
         }
 
         function togglePause() {
-            isPaused = !isPaused;
+            isPaused2 = !isPaused2;
             const pauseBtn = document.getElementById('pauseBtn');
-            pauseBtn.textContent = isPaused ? 'Continuar ▶️' : 'Pausar Tempo ⏸️';
-            pauseBtn.className = isPaused ? 'btn btn-primary full-width' : 'btn btn-warning full-width';
+            pauseBtn.textContent = isPaused2 ? 'Continuar ▶️' : 'Pausar Tempo ⏸️';
+            pauseBtn.className = isPaused2 ? 'btn btn-primary full-width' : 'btn btn-warning full-width';
         }
 
         function adjustScore2(amount) {
@@ -665,6 +660,74 @@
 
         function updateTimer2Display() {
             document.getElementById('timerGame2').textContent = timeLeftGame2;
+        }
+
+
+        // ==========================================
+        // LÓGICA DO JOGO 3: QUEM SOU EU? (NA TESTA)
+        // ==========================================
+        const whoAmIList = [
+            "Sílvio Santos", "Neymar", "Cachorro", "Abacaxi", "Microfone", 
+            "Bicicleta", "Anitta", "Harry Potter", "Homem-Aranha", "Médico", 
+            "Astronauta", "Pizza", "Pão de Queijo", "Gato", "Cadeira", 
+            "Violão", "Bateria", "Albert Einstein", "Pelé", "Xuxa", 
+            "Zumbi", "Camelo", "Geladeira", "Celular", "Piloto de Avião",
+            "Monalisa", "Batman", "Cenoura", "Sapato", "Chuveiro"
+        ];
+
+        let timerGame3Interval = null;
+        let timeLeftGame3 = 60;
+        let score3 = 0;
+
+        function startWhoAmI() {
+            clearInterval(timerGame3Interval);
+            timeLeftGame3 = 60;
+            
+            score3 = 0;
+            document.getElementById('scoreVal3').textContent = score3;
+            updateTimer3Display();
+            
+            // Habilita os botões de Acertar/Passar
+            document.getElementById('btnHit3').disabled = false;
+            document.getElementById('btnPass3').disabled = false;
+            
+            // Muda o botão de iniciar para dar um feedback visual
+            document.getElementById('startWhoAmIBtn').textContent = "Reiniciar Rodada 🔄";
+
+            setRandomWhoAmIWord();
+            runTimer3();
+        }
+
+        function setRandomWhoAmIWord() {
+            const randomWord = whoAmIList[Math.floor(Math.random() * whoAmIList.length)];
+            document.getElementById('secretWord3').textContent = randomWord;
+        }
+
+        function runTimer3() {
+            timerGame3Interval = setInterval(() => {
+                timeLeftGame3--;
+                updateTimer3Display();
+                
+                if (timeLeftGame3 <= 0) {
+                    clearInterval(timerGame3Interval);
+                    document.getElementById('secretWord3').textContent = "FIM DE JOGO! ⏳";
+                    document.getElementById('btnHit3').disabled = true;
+                    document.getElementById('btnPass3').disabled = true;
+                    document.getElementById('startWhoAmIBtn').textContent = "Nova Rodada ⏱️";
+                }
+            }, 1000);
+        }
+
+        function adjustScore3(amount) {
+            if (amount > 0) {
+                score3 += amount;
+                document.getElementById('scoreVal3').textContent = score3;
+            }
+            setRandomWhoAmIWord();
+        }
+
+        function updateTimer3Display() {
+            document.getElementById('timerGame3').textContent = timeLeftGame3;
         }
     </script>
 </body>
