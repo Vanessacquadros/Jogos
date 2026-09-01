@@ -49,7 +49,7 @@
             margin-top: 0.5rem;
         }
 
-        /* --- ABAS PARA 2 JOGOS --- */
+        /* --- ABAS --- */
         .nav-tabs {
             display: flex;
             gap: 0.5rem;
@@ -100,17 +100,26 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .rules-box {
-            background: rgba(15, 23, 42, 0.6);
-            border-left: 3px solid var(--accent);
-            padding: 0.75rem;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
+        /* --- CONTROLES E INPUTS --- */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
-        /* --- SISTEMA DE JOGADORES --- */
+        .custom-select {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            appearance: none;
+        }
+
         .players-setup-area {
             background: rgba(0,0,0,0.15);
             padding: 1rem;
@@ -140,6 +149,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .player-badge {
@@ -159,6 +169,14 @@
             color: var(--danger);
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .round-info {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--warning);
+            font-weight: bold;
+            margin-bottom: 1rem;
         }
 
         .round-actions {
@@ -259,6 +277,7 @@
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-warning { background: var(--warning); color: #000; }
+        .btn-outline { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
 
         /* --- TEMPORIZADORES --- */
         .timer-display {
@@ -270,12 +289,8 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .timer-game1 {
-            display: none; 
-            margin-bottom: 0.5rem;
-        }
+        .timer-game1 { display: none; margin-bottom: 0.5rem; }
 
-        /* --- PALAVRAS SECRETAS --- */
         .secret-word {
             font-size: 1.5rem;
             font-weight: 700;
@@ -304,31 +319,60 @@
             border-radius: 8px;
             margin-top: 1rem;
         }
+        
+        .winner-msg {
+            color: var(--success);
+            font-size: 1.2rem;
+            text-align: center;
+            font-weight: bold;
+            margin: 1rem 0;
+            animation: fadeIn 0.5s ease;
+        }
     </style>
 </head>
-<body>
+<body onload="initGame()">
 
     <header>
         <h1>🎮 Arena</h1>
     </header>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab(0)">1 palavra, 1 música</button>
+        <button class="tab-btn active" onclick="switchTab(0)">1 Palavra, 1 Música</button>
         <button class="tab-btn" onclick="switchTab(1)">Mímicas</button>
     </div>
 
     <div class="game-container active" id="game-1">
         
         <div class="players-setup-area">
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">👥 Adicione os Jogadores ou Equipes:</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">⚙️ Configurações da Partida (Salvo auto)</p>
+            
+            <div class="settings-grid">
+                <select id="gameCategory" class="custom-select">
+                    <option value="gospel">Cat: Gospel (150+ pal)</option>
+                    <option value="mpb">Cat: MPB & Pop/Rock</option>
+                </select>
+                
+                <select id="maxRounds" class="custom-select" onchange="updateRoundInfo()">
+                    <option value="5">5 Rodadas</option>
+                    <option value="10" selected>10 Rodadas</option>
+                    <option value="15">15 Rodadas</option>
+                    <option value="20">20 Rodadas</option>
+                    <option value="999">Infinito</option>
+                </select>
+            </div>
+
             <div class="input-group">
-                <input type="text" id="playerName" placeholder="Nome (Ex: Meninas)" onkeypress="handleEnter(event)">
+                <input type="text" id="playerName" placeholder="Nome do Jogador/Equipe" onkeypress="handleEnter(event)">
                 <button class="btn btn-primary" style="width: auto; margin-top:0; padding: 0 1.5rem;" onclick="addPlayer()">Add</button>
             </div>
             <div class="players-list" id="playersList"></div>
+            
+            <button class="btn btn-outline" style="padding: 0.5rem; font-size: 0.85rem;" onclick="resetGame()">Zerar Tudo 🗑️</button>
         </div>
         
-        <div class="roulette-wrapper">
+        <div class="round-info" id="roundDisplay">Rodada: 1 de 10</div>
+
+        <div class="roulette-wrapper" id="rouletteArea">
             <div class="roulette-pointer"></div>
             <div class="roulette-wheel" id="wheel"></div>
             <div class="roulette-center">
@@ -337,6 +381,8 @@
         </div>
 
         <div class="timer-display timer-game1" id="timerGame1">30</div>
+
+        <div id="winnerDisplay" style="display:none;" class="winner-msg"></div>
 
         <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
 
@@ -348,16 +394,21 @@
 
         <div class="score-board">
             <h4 style="margin-bottom:0.5rem; text-align:center; color: var(--accent);">🏆 Placar</h4>
-            <div id="leaderboardGame1">
-                <p style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Adicione jogadores para iniciar o placar.</p>
-            </div>
+            <div id="leaderboardGame1"></div>
         </div>
 
     </div>
 
     <div class="game-container" id="game-2">
-        <div class="rules-box">
-            Faça a mímica da palavra sorteada para a galera adivinhar. É proibido emitir sons ou apontar para objetos próximos.
+        
+        <div class="settings-grid" style="margin-bottom: 1.5rem;">
+            <select id="mimicTheme" class="custom-select full-width">
+                <option value="all">Mímicas: Todas as Categorias</option>
+                <option value="actions">Ações do Dia a Dia</option>
+                <option value="animals">Animais</option>
+                <option value="movies">Filmes e Personagens</option>
+                <option value="professions">Profissões</option>
+            </select>
         </div>
 
         <div class="timer-display" id="timerGame2">60</div>
@@ -389,30 +440,83 @@
         }
 
         // ==========================================
-        // LÓGICA DO JOGO 1: ROLETA GOSPEL
+        // LÓGICA DO JOGO 1: ROLETA E PLACAR SALVO
         // ==========================================
-        const songWords = [
-            "Milagre", "Deserto", "Vitória", "Cruz", "Sangue", "Graça", "Glória", 
-            "Fogo", "Leão", "Cordeiro", "Altar", "Promessa", "Santo", "Amor", 
-            "Luz", "Caminho", "Verdade", "Vida", "Paz", "Perdão", "Céu", "Rei", 
-            "Senhor", "Fé", "Esperança", "Salvação", "Justiça", "Misericórdia", 
-            "Presença", "Unção", "Poder", "Força", "Alegria", "Tristeza", "Choro", 
-            "Madrugada", "Oração", "Jejum", "Palavra", "Espírito", "Água", "Vento", 
+        
+        // Categoria 1: Gospel (+150 palavras)
+        const gospelWords = [
+            "Deus", "Jesus", "Espírito", "Santo", "Cruz", "Sangue", "Cordeiro", "Leão", 
+            "Altar", "Fogo", "Glória", "Graça", "Milagre", "Promessa", "Deserto", 
+            "Vitória", "Amor", "Paz", "Luz", "Caminho", "Verdade", "Vida", "Perdão", 
+            "Céu", "Rei", "Senhor", "Fé", "Esperança", "Salvação", "Justiça", 
+            "Misericórdia", "Presença", "Unção", "Poder", "Força", "Alegria", "Tristeza", 
+            "Choro", "Madrugada", "Oração", "Jejum", "Palavra", "Água", "Vento", 
             "Mar", "Muralha", "Jericó", "Jordão", "Trono", "Coroa", "Vale", "Monte", 
             "Rocha", "Escudo", "Espada", "Exército", "Batalha", "Guerra", "Louvor", 
-            "Adoração", "Cantico", "Novo", "Eterno", "Soberano", "Redentor", "Filho", 
+            "Adoração", "Cântico", "Novo", "Eterno", "Soberano", "Redentor", "Filho", 
             "Pai", "Igreja", "Noiva", "Vaso", "Oleiro", "Barro", "Quebrantado", 
             "Coração", "Alma", "Mente", "Corpo", "Templo", "Morada", "Esconderijo", 
             "Refúgio", "Socorro", "Angústia", "Tempestade", "Barco", "Ondas", 
             "Calmaria", "Mão", "Abraço", "Voz", "Chamado", "Escolha", "Propósito", 
             "Missão", "Semente", "Fruto", "Colheita", "Trigo", "Celeiro", "Maná", 
-            "Pão", "Vinho", "Azeite", "Cálice"
+            "Pão", "Vinho", "Azeite", "Cálice", "Incenso", "Arca", "Cajado", "Funda", 
+            "Gigante", "Fornalha", "Cova", "Cego", "Mudo", "Surdo", "Ressurreição", 
+            "Túmulo", "Pedra", "Véu", "Tabernáculo", "Sacerdote", "Profeta", "Anjo", 
+            "Querubim", "Serafim", "Trombeta", "Harpa", "Tamborim", "Dança", "Festa", 
+            "Banquete", "Vestes", "Linho", "Branco", "Calvário", "Getsêmani", "Sião", 
+            "Egito", "Canaã", "Leite", "Mel", "Ovelha", "Pastor", "Aprisco", "Águia", 
+            "Pomba", "Peixe", "Rede", "Pescador", "Mestre", "Discípulo", "Prego", 
+            "Espinho", "Lança", "Ascensão", "Nuvem", "Retorno", "Maranata"
+        ];
+
+        // Categoria 2: MPB & Pop/Rock
+        const mpbWords = [
+            "Amor", "Saudade", "Tempo", "Vida", "Mundo", "Sol", "Chuva", "Mar", "Vento", 
+            "Céu", "Estrela", "Noite", "Dia", "Beijo", "Abraço", "Coração", "Olhar", 
+            "Sorriso", "Menina", "Menino", "Flor", "Estrada", "Caminho", "Cidade", 
+            "Solidão", "Festa", "Dança", "Música", "Voz", "Silêncio", "Loucura", 
+            "Razão", "Paixão", "Desejo", "Medo", "Coragem", "Sonho", "Realidade", 
+            "Lembrança", "Esquecimento", "Janela", "Porta", "Rua", "Esquina", "Bar", 
+            "Copo", "Fogo", "Água", "Beleza", "Destino", "Sorte"
         ];
         
         let players = [];
         let isSpinning = false;
         let currentRotation = 0;
         let timerGame1Interval = null;
+        let currentRound = 1;
+
+        // --- Inicialização (Carrega do LocalStorage) ---
+        function initGame() {
+            const savedPlayers = localStorage.getItem('arenaPlayers');
+            const savedRound = localStorage.getItem('arenaRound');
+            
+            if(savedPlayers) players = JSON.parse(savedPlayers);
+            if(savedRound) currentRound = parseInt(savedRound);
+            
+            renderPlayers();
+            updateRoundInfo();
+        }
+
+        function saveState() {
+            localStorage.setItem('arenaPlayers', JSON.stringify(players));
+            localStorage.setItem('arenaRound', currentRound.toString());
+        }
+
+        function resetGame() {
+            if(confirm("Tem certeza que deseja zerar os jogadores e o placar?")) {
+                players = [];
+                currentRound = 1;
+                localStorage.removeItem('arenaPlayers');
+                localStorage.removeItem('arenaRound');
+                document.getElementById('winnerDisplay').style.display = 'none';
+                document.getElementById('rouletteArea').style.display = 'flex';
+                document.getElementById('spinBtn').style.display = 'block';
+                document.getElementById('currentWord').textContent = "Gire!";
+                renderPlayers();
+                updateRoundInfo();
+            }
+        }
 
         function handleEnter(e) { if (e.key === 'Enter') addPlayer(); }
 
@@ -422,12 +526,14 @@
             if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
                 players.push({ name: name, score: 0 });
                 input.value = '';
+                saveState();
                 renderPlayers();
             }
         }
 
         function removePlayer(index) {
             players.splice(index, 1);
+            saveState();
             renderPlayers();
         }
 
@@ -445,6 +551,17 @@
             updateLeaderboard();
         }
 
+        function updateRoundInfo() {
+            const max = document.getElementById('maxRounds').value;
+            const display = document.getElementById('roundDisplay');
+            
+            if(max === "999") {
+                display.textContent = `Rodada Livre: ${currentRound}`;
+            } else {
+                display.textContent = `Rodada: ${currentRound} de ${max}`;
+            }
+        }
+
         function spinRoulette() {
             if (isSpinning) return;
             isSpinning = true;
@@ -454,6 +571,7 @@
             const btnSpin = document.getElementById('spinBtn');
             const timerEl = document.getElementById('timerGame1');
             const actionsEl = document.getElementById('roundActions');
+            const category = document.getElementById('gameCategory').value;
             
             clearInterval(timerGame1Interval);
             timerEl.style.display = 'none';
@@ -469,7 +587,9 @@
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
-                const randomWord = songWords[Math.floor(Math.random() * songWords.length)];
+                const wordList = category === 'gospel' ? gospelWords : mpbWords;
+                const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+                
                 wordEl.textContent = randomWord;
                 wordEl.style.fontSize = "1.2rem";
                 isSpinning = false;
@@ -529,18 +649,41 @@
 
         function awardPoint(playerIndex) {
             players[playerIndex].score += 1;
+            saveState();
             endRound();
         }
 
-        function passRound() { endRound(); }
+        function passRound() { 
+            endRound(); 
+        }
 
         function endRound() {
             clearInterval(timerGame1Interval);
             document.getElementById('timerGame1').style.display = 'none';
             document.getElementById('roundActions').style.display = 'none';
-            document.getElementById('spinBtn').style.display = 'block';
-            document.getElementById('currentWord').textContent = "Próxima!";
+            
+            currentRound++;
+            saveState();
+            updateRoundInfo();
             updateLeaderboard();
+
+            const max = parseInt(document.getElementById('maxRounds').value);
+            
+            // Verifica se o jogo acabou
+            if(currentRound > max) {
+                document.getElementById('rouletteArea').style.display = 'none';
+                
+                const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+                const winnerText = sortedPlayers.length > 0 ? `Vencedor(a): ${sortedPlayers[0].name} 🏆` : "Fim de Jogo!";
+                
+                const winDiv = document.getElementById('winnerDisplay');
+                winDiv.textContent = winnerText;
+                winDiv.style.display = 'block';
+                
+            } else {
+                document.getElementById('spinBtn').style.display = 'block';
+                document.getElementById('currentWord').textContent = "Próxima!";
+            }
         }
 
         function updateLeaderboard() {
@@ -563,14 +706,14 @@
 
 
         // ==========================================
-        // LÓGICA DO JOGO 2: MÍMICAS
+        // LÓGICA DO JOGO 2: MÍMICAS COM TEMAS
         // ==========================================
-        const mimicList = [
-            "Astronauta", "Pinguim", "Secador de Cabelo", "Montanha Russa", 
-            "Zumbi", "Surfista", "Gato", "Tocar Bateria", "Cozinhar", 
-            "Tirar Foto", "Dinossauro", "Robô", "Cachorro", "Pescador", 
-            "Andar de Bicicleta", "Liquidificador", "Escovar os Dentes"
-        ];
+        const mimicDB = {
+            actions: ["Escovar os dentes", "Tomar banho", "Cozinhar", "Dirigir", "Dormir", "Chorar", "Rir", "Ler um livro", "Escrever", "Tocar bateria", "Cantar", "Andar de bicicleta", "Fazer compras", "Varrer a casa", "Lavar louça"],
+            animals: ["Leão", "Gato", "Cachorro", "Macaco", "Elefante", "Cobra", "Pinguim", "Sapo", "Cavalo", "Pássaro", "Jacaré", "Tubarão", "Baleia", "Galinha", "Porco", "Canguru"],
+            movies: ["Homem-Aranha", "Harry Potter", "Titanic", "Matrix", "Star Wars", "O Rei Leão", "Jurassic Park", "Batman", "Vingadores", "Shrek", "Minions", "E.T.", "Senhor dos Anéis"],
+            professions: ["Médico", "Professor", "Policial", "Bombeiro", "Cantor", "Astronauta", "Pintor", "Cozinheiro", "Pescador", "Fotógrafo", "Motorista", "Dançarino", "Jogador de Futebol", "Juiz"]
+        };
 
         let timerGame2Interval = null;
         let timeLeftGame2 = 60;
@@ -599,7 +742,16 @@
         }
 
         function setRandomMimicWord() {
-            const randomMimic = mimicList[Math.floor(Math.random() * mimicList.length)];
+            const theme = document.getElementById('mimicTheme').value;
+            let wordList = [];
+            
+            if(theme === 'all') {
+                wordList = [...mimicDB.actions, ...mimicDB.animals, ...mimicDB.movies, ...mimicDB.professions];
+            } else {
+                wordList = mimicDB[theme];
+            }
+
+            const randomMimic = wordList[Math.floor(Math.random() * wordList.length)];
             document.getElementById('secretWord').textContent = randomMimic;
         }
 
