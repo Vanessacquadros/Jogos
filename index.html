@@ -341,15 +341,17 @@
         <button class="tab-btn" onclick="switchTab(1)">Mímicas</button>
     </div>
 
+    <!-- JOGO 1: 1 PALAVRA, 1 MÚSICA -->
     <div class="game-container active" id="game-1">
         
+        <!-- Configurações da Partida -->
         <div class="players-setup-area">
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">⚙️ Configurações da Partida (Salvo auto)</p>
             
             <div class="settings-grid">
                 <select id="gameCategory" class="custom-select">
-                    <option value="gospel">Cat: Gospel (150+ pal)</option>
-                    <option value="mpb">Cat: MPB & Pop/Rock</option>
+                    <option value="gospel">Categoria: Gospel</option>
+                    <option value="brasileira">Categoria: Música Brasileira</option>
                 </select>
                 
                 <select id="maxRounds" class="custom-select" onchange="updateRoundInfo()">
@@ -372,6 +374,7 @@
         
         <div class="round-info" id="roundDisplay">Rodada: 1 de 10</div>
 
+        <!-- Roleta -->
         <div class="roulette-wrapper" id="rouletteArea">
             <div class="roulette-pointer"></div>
             <div class="roulette-wheel" id="wheel"></div>
@@ -382,16 +385,20 @@
 
         <div class="timer-display timer-game1" id="timerGame1">30</div>
 
+        <!-- Mensagem de Vencedor -->
         <div id="winnerDisplay" style="display:none;" class="winner-msg"></div>
 
+        <!-- Botão principal de girar -->
         <button class="btn btn-primary" id="spinBtn" onclick="spinRoulette()">Girar Roleta 🎯</button>
 
+        <!-- Ações após a roleta parar -->
         <div id="roundActions" class="round-actions" style="display:none;">
             <p id="questionText" style="text-align:center; color:var(--text-muted); margin-bottom:0.8rem; font-size: 0.9rem;">Quem cantou primeiro?</p>
             <div class="controls-grid" id="awardButtonsGrid"></div>
             <button class="btn btn-danger" style="margin-top:0.5rem; width: 100%;" onclick="passRound()">Ninguém Acertou (Passar) ❌</button>
         </div>
 
+        <!-- Placar -->
         <div class="score-board">
             <h4 style="margin-bottom:0.5rem; text-align:center; color: var(--accent);">🏆 Placar</h4>
             <div id="leaderboardGame1"></div>
@@ -399,6 +406,7 @@
 
     </div>
 
+    <!-- JOGO 2: MÍMICAS -->
     <div class="game-container" id="game-2">
         
         <div class="settings-grid" style="margin-bottom: 1.5rem;">
@@ -443,7 +451,6 @@
         // LÓGICA DO JOGO 1: ROLETA E PLACAR SALVO
         // ==========================================
         
-        // Categoria 1: Gospel (+150 palavras)
         const gospelWords = [
             "Deus", "Jesus", "Espírito", "Santo", "Cruz", "Sangue", "Cordeiro", "Leão", 
             "Altar", "Fogo", "Glória", "Graça", "Milagre", "Promessa", "Deserto", 
@@ -469,8 +476,7 @@
             "Espinho", "Lança", "Ascensão", "Nuvem", "Retorno", "Maranata"
         ];
 
-        // Categoria 2: MPB & Pop/Rock
-        const mpbWords = [
+        const brasileiraWords = [
             "Amor", "Saudade", "Tempo", "Vida", "Mundo", "Sol", "Chuva", "Mar", "Vento", 
             "Céu", "Estrela", "Noite", "Dia", "Beijo", "Abraço", "Coração", "Olhar", 
             "Sorriso", "Menina", "Menino", "Flor", "Estrada", "Caminho", "Cidade", 
@@ -587,7 +593,7 @@
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
-                const wordList = category === 'gospel' ? gospelWords : mpbWords;
+                const wordList = category === 'gospel' ? gospelWords : brasileiraWords;
                 const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
                 
                 wordEl.textContent = randomWord;
@@ -669,7 +675,6 @@
 
             const max = parseInt(document.getElementById('maxRounds').value);
             
-            // Verifica se o jogo acabou
             if(currentRound > max) {
                 document.getElementById('rouletteArea').style.display = 'none';
                 
